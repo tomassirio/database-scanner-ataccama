@@ -9,12 +9,12 @@ public interface InstanceInfoService {
 
     List<InstanceInfo> findAllInstances();
 
-    InstanceInfo findById(Long id);
+    InstanceInfo findById(Long id) throws Exception;
 
     InstanceInfo createInstance(InstanceInfoDTO instanceInfoDTO) throws Exception;
 
-    InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO);
+    InstanceInfoDTO updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception;
 
-    InstanceInfo deleteInstance(Long id);
+    void deleteInstance(Long id) throws Exception;
 
 }

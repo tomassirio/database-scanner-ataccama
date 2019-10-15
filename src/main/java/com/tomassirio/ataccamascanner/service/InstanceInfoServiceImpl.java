@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class InstanceInfoServiceImpl implements InstanceInfoService {
@@ -22,7 +23,7 @@ public class InstanceInfoServiceImpl implements InstanceInfoService {
     }
 
     @Override
-    public InstanceInfo findById(Long id) {
+    public InstanceInfo findById(Long id) throws Exception{
         InstanceInfo instanceInfo = instanceInfoRepository.findInstanceInfoById(id);
         return instanceInfo;
     }
@@ -37,13 +38,27 @@ public class InstanceInfoServiceImpl implements InstanceInfoService {
     }
 
     @Override
-    public InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO) {
-        return null;
+    public InstanceInfoDTO updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception{
+        Optional<InstanceInfo> instanceInfo = instanceInfoRepository.findById(instanceInfoDTO.getId());
+
+        if (!instanceInfo.isPresent()) {
+            throw new Exception(instanceInfoDTO.getInstanceName());
+        }
+
+        mapInstance(instanceInfo.get(), instanceInfoDTO);
+        return instanceInfoDTO;
     }
 
     @Override
-    public InstanceInfo deleteInstance(Long id) {
-        return null;
+    public void deleteInstance(Long id) throws Exception{
+        try {
+            InstanceInfo instanceInfo = instanceInfoRepository.findInstanceInfoById(id);
+
+            instanceInfoRepository.delete(instanceInfo);
+
+        } catch (Exception e) {
+            throw new Exception(id.toString());
+        }
     }
 
     private boolean isValidInstance(InstanceInfoDTO instanceInfoDTO) throws Exception {
