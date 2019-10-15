@@ -1,7 +1,7 @@
 package com.tomassirio.ataccamascanner.service;
 
 
-import com.tomassirio.ataccamascanner.model.InstanceInfo;
+import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.stereotype.Service;
@@ -15,10 +15,10 @@ public class DataSourceServiceImpl implements DataSourceService {
     private static final String MYSQL_JDBC = "jdbc:mysql";
 
     @Override
-    public DataSource getDataSource(InstanceInfo instanceInfo) throws Exception {
+    public DataSource getDataSource(InstanceInfoDTO instanceInfoDTO) {
         return DataSourceBuilder.create()
-                .url(MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort())
-                .username(instanceInfo.getUser())
-                .password(instanceInfo.getPassword()).build();
+                .url(MYSQL_JDBC + "://" + instanceInfoDTO.getHost() + ":" + instanceInfoDTO.getPort())
+                .username(instanceInfoDTO.getUser())
+                .password(instanceInfoDTO.getPassword()).build();
     }
 }

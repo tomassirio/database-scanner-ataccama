@@ -1,10 +1,10 @@
 package com.tomassirio.ataccamascanner.service;
 
-import com.tomassirio.ataccamascanner.model.InstanceInfo;
+import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 
 import javax.sql.DataSource;
 
 public interface DataSourceService {
 
-    DataSource getDataSource(InstanceInfo instanceInfo) throws Exception;
+    DataSource getDataSource(InstanceInfoDTO instanceInfoDTO) throws Exception;
 }
