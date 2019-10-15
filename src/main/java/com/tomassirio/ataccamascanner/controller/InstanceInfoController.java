@@ -12,7 +12,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/instances")
+@RequestMapping(value = "/")
 public class InstanceInfoController {
 
     @Autowired
@@ -25,28 +25,29 @@ public class InstanceInfoController {
         return ResponseEntity.status(HttpStatus.OK).body(instanceInfos);
     }
 
-    @GetMapping("/instance_info/by_instance")
-    public ResponseEntity<List<InstanceInfo>> findAllByInstance(@RequestParam(value = "instanceName") String instanceName) throws Exception {
+    @GetMapping("/instance_info/{id}")
+    public ResponseEntity<InstanceInfo> findById(@PathVariable(value = "id")Long id) throws Exception {
 
-        List<InstanceInfo> instanceInfos = instanceInfoService.findAllByInstance(instanceName);
-        return ResponseEntity.status(HttpStatus.OK).body(instanceInfos);
+        InstanceInfo instanceInfo = instanceInfoService.findById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(instanceInfo);
     }
 
     @PostMapping("/instance_info")
-    public ResponseEntity<InstanceInfoDTO> createInstance(@Valid @RequestBody InstanceInfoDTO instanceInfoDTO) throws Exception {
+    public ResponseEntity<InstanceInfo> createInstance(@Valid @RequestBody InstanceInfoDTO instanceInfoDTO) throws Exception {
 
-        return ResponseEntity.status(HttpStatus.OK).body(instanceInfoDTO);
+        InstanceInfo instanceInfo = instanceInfoService.createInstance(instanceInfoDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(instanceInfo);
 
     }
 
-    @PutMapping("/instance_info/by_instance")
+    @PutMapping("/instance_info/{id}")
     public ResponseEntity<InstanceInfoDTO> updateInstance(@Valid @RequestBody InstanceInfoDTO instanceInfoDTO) throws Exception {
 
         instanceInfoService.updateInstance(instanceInfoDTO);
         return ResponseEntity.status(HttpStatus.OK).body(instanceInfoDTO);
     }
 
-    @DeleteMapping("/instance_info/by_instance")
+    @DeleteMapping("/instance_info/{id}")
     public ResponseEntity<Long> delete(@PathVariable(value = "id") Long id) throws Exception {
 
         instanceInfoService.deleteInstance(id);
