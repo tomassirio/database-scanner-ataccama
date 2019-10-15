@@ -1,6 +1,7 @@
 <H1>Ataccama's Database Scanner</H1>
 
 <H3>Technologies used</H3>
+
 - Java 8
 
 - Spring boot
