@@ -8,6 +8,10 @@
 		<version>2.1.9.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
+	<!-- Output to jar format -->
+	<packaging>jar</packaging>
+
 	<groupId>com.tomassirio</groupId>
 	<artifactId>ataccama-scanner</artifactId>
 	<version>0.0.1-SNAPSHOT</version>

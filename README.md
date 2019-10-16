@@ -26,7 +26,7 @@ The Spring Environment was created with `https://start.spring.io/`
  
  - Make Tests
  
- - Dockerize the app 
+ ~~- Dockerize the app~~ 
  
  - Dcoument everything on this Readme 
  
