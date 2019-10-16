@@ -10,4 +10,6 @@ public interface ScannerService {
     String scanTables(DatabaseStructure databaseStructure) throws Exception;
 
     String scanColumns(DatabaseStructure databaseStructure) throws Exception;
+
+    String scanFields(DatabaseStructure databaseStructure) throws Exception;
 }

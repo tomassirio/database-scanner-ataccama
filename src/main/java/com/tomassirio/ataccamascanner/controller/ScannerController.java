@@ -17,6 +17,7 @@ public class ScannerController {
     private static final String SCHEMA = "Schema";
     private static final String TABLE = "Table";
     private static final String COLUMN = "Column";
+    private static final String ROWS = "Row";
 
     @Autowired
     private DatabaseStructureService databaseStructureService;
@@ -50,6 +51,15 @@ public class ScannerController {
 
     }
 
+    @GetMapping("/{instanceName}/rows")
+    public ResponseEntity<String> scanFields(@PathVariable("instanceName") String instanceName) throws Exception {
+
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, ROWS, Boolean.TRUE);
+
+        return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanFields(databaseStructure));
+
+    }
+
     @GetMapping("/{instanceName}/database/tables")
     public ResponseEntity<String> scanTablesFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
 
@@ -64,6 +74,15 @@ public class ScannerController {
         DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanColumns(databaseStructure));
+
+    }
+
+    @GetMapping("/{instanceName}/database/rows")
+    public ResponseEntity<String> scanFieldsFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
+
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, ROWS, Boolean.FALSE);
+
+        return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanFields(databaseStructure));
 
     }
 }

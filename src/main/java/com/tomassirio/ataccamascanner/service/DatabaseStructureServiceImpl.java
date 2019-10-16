@@ -3,10 +3,7 @@ package com.tomassirio.ataccamascanner.service;
 
 import com.tomassirio.ataccamascanner.config.CommonConfiguration;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
-import com.tomassirio.ataccamascanner.model.database.Column;
-import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
-import com.tomassirio.ataccamascanner.model.database.Schema;
-import com.tomassirio.ataccamascanner.model.database.Table;
+import com.tomassirio.ataccamascanner.model.database.*;
 import com.tomassirio.ataccamascanner.repository.InstanceInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.io.*;
 import java.sql.*;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -83,10 +81,14 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                     break;
                 case "Column": getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     break;
+                case "Row" : {
+                    getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
+                    getRowsStructure(databaseStructure, connection);
+                }
+                    break;
                 default:
                     break;
             }
-
             return databaseStructure;
         } catch (Exception e) {
             throw e;
@@ -104,10 +106,6 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
         while (resultSet.next()) {
 
             String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
-            String currentTable = resultSet.getString("TABLENAME");
-            String currentColumnName = resultSet.getString("COLUMNNAME");
-            String currentColumnType = resultSet.getString("COLUMNTYPE");
-            String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
 
             if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 
@@ -115,10 +113,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                 schema.setSchemaName(currentSchema);
                 databaseStructure.addSchema(schema);
 
-            } else { //While this one is going to be reached if i'm on the Last Schema
-                Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
             }
-
             previousSchema = currentSchema; //Map the currentSchema to the Previous one
         }
         return databaseStructure;
@@ -165,6 +160,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             previousSchema = currentSchema; //Map the currentSchema to the Previous one
             previousTable = currentTable; //Same but with table
         }
+        generateQueries(databaseStructure);
         return databaseStructure;
     }
 
@@ -205,6 +201,30 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
         return databaseStructure;
     }
 
+    private DatabaseStructure getRowsStructure(DatabaseStructure databaseStructure, Connection connection) throws SQLException {
+        Statement fieldStatement = null;
+        ResultSet fieldResultSet = null;
+        for(Schema schema : databaseStructure.getSchemas()){
+            for(Table table: schema.getTables()){
+                fieldStatement = connection.createStatement();
+                fieldResultSet = fieldStatement.executeQuery(table.getQuery());
+                while (fieldResultSet.next()) {
+                    Row row = new Row();
+                    for (Column column : table.getColumns()) {
+                        Field field = new Field();
+                        field.setName(column.getColumnName());
+                        field.setDataType(column.getColumnType());
+                        field.setValue(fieldResultSet.getString(column.getColumnName()));
+                        row.addField(field);
+
+                    }
+                    table.addRow(row);
+                }
+
+            }
+        }
+        return databaseStructure;
+    }
 
     private String getStructureFileName() {
         return commonConfiguration.getStructureFileMySql();
@@ -241,5 +261,22 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
         table.setTableName(currentTable);
         table.addColumn(column);
         return table;
+    }
+
+    private void generateQueries(DatabaseStructure databaseStructure) {
+        for (Schema schema : databaseStructure.getSchemas()) {
+            for (Table table : schema.getTables()) {
+
+                StringBuilder sbQuery = (new StringBuilder()).append("select ");
+                for (Column column : table.getColumns()) {
+                    sbQuery.append("`").append(column.getColumnName()).append("`, ");
+                }
+                sbQuery.delete(sbQuery.length() - 2, sbQuery.length() - 1);
+                sbQuery.append("from ").append(schema.getSchemaName()).append(".").append(table.getTableName());
+
+                table.setQuery(sbQuery.toString());
+            }
+        }
+
     }
 }
