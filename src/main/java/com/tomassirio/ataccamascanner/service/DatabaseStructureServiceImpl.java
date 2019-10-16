@@ -6,6 +6,7 @@ import com.tomassirio.ataccamascanner.exceptions.InstanceNotFoundException;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
 import com.tomassirio.ataccamascanner.model.database.*;
 import com.tomassirio.ataccamascanner.repository.InstanceInfoRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.sql.Statement;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
     @Autowired
@@ -67,6 +69,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             if (!allDatabases) //I might want to get the info on a given database or an all databases. So i change the query on that decision
                 query = query.replace(CommonConfiguration.REFERED_SCHEMA, "\'" + instanceInfo.getDatabase() + "\'");
 
+            log.info("Query to be run: " + query);
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
 
@@ -77,21 +80,27 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
             switch (structure) {
                 case CommonConfiguration.SCHEMA:
+                    log.info("Schema scan initialized");
                     getSChemaStructure(resultSet, previousSchema, databaseStructure);
                     break;
                 case CommonConfiguration.TABLE:
+                    log.info("Table scan initialized");
                     getTableStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     break;
                 case CommonConfiguration.COLUMN:
+                    log.info("Column scan initialized");
                     getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     break;
                 case CommonConfiguration.STATISTICS_TABLE: //This is intended as they retrieve the same structure
+                    log.info("Statics table scan initialized");
                 case CommonConfiguration.ROW: {
+                    log.info("Row scan initialized");
                     getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     getRowsStructure(databaseStructure, connection);
                 }
                 break;
                 case CommonConfiguration.STATISTICS_COLUMN:
+                    log.info("Statics Column scan initialized");
                     getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     getStatisticsColumnStructure(databaseStructure, connection);
                     break;
@@ -100,6 +109,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             }
             return databaseStructure;
         } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
             throw e;
         } finally {
             if (Objects.nonNull(resultSet)) {
@@ -276,6 +286,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             }
             reader.close();
         } catch (IOException e) {
+            log.error(e.getLocalizedMessage());
             e.printStackTrace();
         }
         return result.toString();
@@ -299,14 +310,14 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private void generateQueries(DatabaseStructure databaseStructure) {
         for (Schema schema : databaseStructure.getSchemas()) {
             for (Table table : schema.getTables()) {
-                StringBuilder sbQuery = (new StringBuilder()).append("select ");
+                StringBuilder sbQuery = (new StringBuilder()).append("SELECT ");
                 for (Column column : table.getColumns()) {
-                    sbQuery.append("`").append(column.getColumnName()).append("`, ");
+                    sbQuery.append("'").append(column.getColumnName()).append("', ");
                     generateColumnQuery(column, schema.getSchemaName(), table.getTableName());
                 }
                 sbQuery.delete(sbQuery.length() - 2, sbQuery.length() - 1);
-                sbQuery.append("from ").append(schema.getSchemaName()).append(".").append(table.getTableName());
-
+                sbQuery.append("FROM ").append(schema.getSchemaName()).append(".").append(table.getTableName());
+                log.info("Table "+ table.getTableName() + " Query: " + sbQuery.toString());
                 table.setQuery(sbQuery.toString());
             }
         }
@@ -329,7 +340,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                 .append("FROM ")
                 .append(schemaName + "." + tableName)
                 .append(";");
-
+        log.info("Column " + column.getColumnName() + " Query: " + sbQuery.toString());
         column.setQuery(sbQuery.toString());
 
     }

@@ -4,12 +4,14 @@ import com.tomassirio.ataccamascanner.exceptions.InstanceNotFoundException;
 import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
 import com.tomassirio.ataccamascanner.repository.InstanceInfoRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Service
 public class InstanceInfoServiceImpl implements InstanceInfoService {
 
@@ -44,6 +46,7 @@ public class InstanceInfoServiceImpl implements InstanceInfoService {
             mapInstance(instanceInfo, instanceInfoDTO);
             return instanceInfo;
         }catch (Exception e){
+            log.error(e.getLocalizedMessage());
             throw new InstanceNotFoundException(instanceInfoDTO.getId().toString());
         }
 
@@ -57,6 +60,7 @@ public class InstanceInfoServiceImpl implements InstanceInfoService {
             instanceInfoRepository.delete(instanceInfo);
 
         } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
             throw new InstanceNotFoundException(id.toString());
         }
     }
