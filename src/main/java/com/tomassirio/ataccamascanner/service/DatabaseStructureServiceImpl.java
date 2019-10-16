@@ -12,15 +12,27 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.io.*;
 import java.sql.*;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
 public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
     private static final String MYSQL_JDBC = "jdbc:mysql";
-
     private static final String PRIMARY_KEY = "PRIMARY KEY";
+    private static final String MIN = "MIN";
+    private static final String MAX = "MAX";
+    private static final String AVG = "AVG";
+    //private static final String MEDIAN = "MEDIAN";
+
+    private static final String SCHEMA = "Schema";
+    private static final String TABLE = "Table";
+    private static final String COLUMN = "Column";
+    private static final String ROW = "Row";
+    private static final String STATISTICS_COLUMN = "Statistics Column";
+    private static final String STATISTICS_TABLE = "Statistics Table";
+
+    private static final String REFEREDSCHEMA = "REFEREDSCHEMA";
+
 
     @Autowired
     private InstanceInfoRepository instanceInfoRepository;
@@ -30,7 +42,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
     @Override
     public DataSource getDataSource(InstanceInfo instanceInfo, Boolean allDatabases) {
-        if(allDatabases)
+        if (allDatabases)
             return DataSourceBuilder.create()
                     .url(MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort())
                     .username(instanceInfo.getUser())
@@ -63,8 +75,8 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
              */
             String query = getQuery(allDatabases ? commonConfiguration.getStructureFileMySql() : commonConfiguration.getStructureFileMySqlByDatabase());
 
-            if(!allDatabases) //I might want to get the info on a given database or an all databases. So i change the query on that decission
-                query = query.replace("REFEREDSCHEMA", "\'" + instanceInfo.getDatabase() + "\'" );
+            if (!allDatabases) //I might want to get the info on a given database or an all databases. So i change the query on that decission
+                query = query.replace(REFEREDSCHEMA, "\'" + instanceInfo.getDatabase() + "\'");
 
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
@@ -74,17 +86,25 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             String previousSchema = "";
             String previousTable = "";
 
-            switch(structure){
-                case "Schema": getSChemaStructure(resultSet, previousSchema, databaseStructure);
+            switch (structure) {
+                case SCHEMA:
+                    getSChemaStructure(resultSet, previousSchema, databaseStructure);
                     break;
-                case "Table": getTableStructure(resultSet, previousSchema, previousTable, databaseStructure);
+                case TABLE:
+                    getTableStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     break;
-                case "Column": getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
+                case COLUMN:
+                    getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     break;
-                case "Row" : {
+                case STATISTICS_TABLE: //This is intended as they retrieve the same structure
+                case ROW: {
                     getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     getRowsStructure(databaseStructure, connection);
                 }
+                break;
+                case STATISTICS_COLUMN:
+                    getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
+                    getStatisticsColumnStructure(databaseStructure, connection);
                     break;
                 default:
                     break;
@@ -146,6 +166,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
                     Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
                     Table table = mapTable(currentTable, column);
+                    table.getAttributes().add(currentColumnType);
                     schema.addTable(table);
 
 
@@ -153,6 +174,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
                     Table table = schema.getTables().get(schema.getTables().size() - 1);
                     Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
+                    table.getAttributes().add(currentColumnType);
                     table.addColumn(column);
                 }
             }
@@ -204,8 +226,8 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private DatabaseStructure getRowsStructure(DatabaseStructure databaseStructure, Connection connection) throws SQLException {
         Statement fieldStatement = null;
         ResultSet fieldResultSet = null;
-        for(Schema schema : databaseStructure.getSchemas()){
-            for(Table table: schema.getTables()){
+        for (Schema schema : databaseStructure.getSchemas()) {
+            for (Table table : schema.getTables()) {
                 fieldStatement = connection.createStatement();
                 fieldResultSet = fieldStatement.executeQuery(table.getQuery());
                 while (fieldResultSet.next()) {
@@ -223,6 +245,28 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
             }
         }
+        return databaseStructure;
+    }
+
+    private DatabaseStructure getStatisticsColumnStructure(DatabaseStructure databaseStructure, Connection connection) throws SQLException {
+        Statement colStatement = null;
+        ResultSet colResultSet = null;
+        for (Schema schema : databaseStructure.getSchemas()) {
+            for (Table table : schema.getTables()) {
+                for(Column column : table.getColumns()){
+                    colStatement = connection.createStatement();
+                    colResultSet = colStatement.executeQuery(column.getQuery());
+                    while(colResultSet.next()){
+                        column.setMin(colResultSet.getString(MIN));
+                        column.setMax(colResultSet.getString(MAX));
+                        column.setAvg(colResultSet.getString(AVG));
+                    }
+
+                }
+            }
+
+        }
+
         return databaseStructure;
     }
 
@@ -270,6 +314,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                 StringBuilder sbQuery = (new StringBuilder()).append("select ");
                 for (Column column : table.getColumns()) {
                     sbQuery.append("`").append(column.getColumnName()).append("`, ");
+                    generateColumnQuery(column, schema.getSchemaName(), table.getTableName());
                 }
                 sbQuery.delete(sbQuery.length() - 2, sbQuery.length() - 1);
                 sbQuery.append("from ").append(schema.getSchemaName()).append(".").append(table.getTableName());
@@ -277,6 +322,26 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                 table.setQuery(sbQuery.toString());
             }
         }
+
+    }
+
+    private void generateColumnQuery(Column column, String schemaName, String tableName) {
+        StringBuilder sbQuery = (
+                new StringBuilder()).append("SELECT ")
+                .append("MIN(")
+                .append(column.getColumnName())
+                .append(") as MIN, ")
+                .append("MAX(")
+                .append(column.getColumnName())
+                .append(") as MAX, ")
+                .append("AVG(")
+                .append(column.getColumnName())
+                .append(") as AVG ")
+                .append("FROM ")
+                .append(schemaName + "." + tableName)
+                .append(";");
+
+        column.setQuery(sbQuery.toString());
 
     }
 }
