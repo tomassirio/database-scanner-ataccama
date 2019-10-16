@@ -39,7 +39,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     }
 
     @Override
-    public DatabaseStructure getColumnsStructure(String instanceName) throws SQLException {
+    public DatabaseStructure getDatabaseStructure(String instanceName, String structure) throws SQLException {
         Connection connection = null;
 
         Statement statement = null;
@@ -67,195 +67,135 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             String previousSchema = "";
             String previousTable = "";
 
-            while (resultSet.next()) {
+            switch(structure){
+                case "Schema": getSChemaStructure(resultSet, previousSchema, databaseStructure);
+                    break;
+                case "Table": getTableStructure(resultSet, previousSchema, previousTable, databaseStructure);
+                    break;
+                case "Column": getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
+                    break;
+                default:
+                    break;
+            }
 
-                String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
-                String currentTable = resultSet.getString("TABLENAME");
-                String currentColumnName = resultSet.getString("COLUMNNAME");
-                String currentColumnType = resultSet.getString("COLUMNTYPE");
-                String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
+            return databaseStructure;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (Objects.nonNull(resultSet)) {
+                resultSet.close();
+            }
+            if (Objects.nonNull(statement)) {
+                statement.close();
+            }
+        }
+    }
 
-                if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
+    private DatabaseStructure getSChemaStructure(ResultSet resultSet, String previousSchema, DatabaseStructure databaseStructure) throws SQLException {
+        while (resultSet.next()) {
 
-                    Schema schema = new Schema();
-                    schema.setSchemaName(currentSchema);
+            String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
+            String currentTable = resultSet.getString("TABLENAME");
+            String currentColumnName = resultSet.getString("COLUMNNAME");
+            String currentColumnType = resultSet.getString("COLUMNTYPE");
+            String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
+
+            if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
+
+                Schema schema = new Schema();
+                schema.setSchemaName(currentSchema);
+                databaseStructure.addSchema(schema);
+
+            } else { //While this one is going to be reached if i'm on the Last Schema
+                Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
+            }
+
+            previousSchema = currentSchema; //Map the currentSchema to the Previous one
+        }
+        return databaseStructure;
+    }
+
+    private DatabaseStructure getColumnStructure(ResultSet resultSet, String previousSchema, String previousTable, DatabaseStructure databaseStructure) throws SQLException {
+        while (resultSet.next()) {
+
+            String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
+            String currentTable = resultSet.getString("TABLENAME");
+            String currentColumnName = resultSet.getString("COLUMNNAME");
+            String currentColumnType = resultSet.getString("COLUMNTYPE");
+            String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
+
+            if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
+
+                Schema schema = new Schema();
+                schema.setSchemaName(currentSchema);
+
+                Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
+
+                Table table = mapTable(currentTable, column);
+
+                schema.addTable(table);
+                databaseStructure.addSchema(schema);
+
+            } else { //While this one is going to be reached if i'm on the Last Schema
+                Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
+                if (!previousTable.equals(currentTable)) { //Same way but with tables
 
                     Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
-
                     Table table = mapTable(currentTable, column);
-
                     schema.addTable(table);
-                    databaseStructure.addSchema(schema);
-
-                } else { //While this one is going to be reached if i'm on the Last Schema
-                    Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
-                    if (!previousTable.equals(currentTable)) { //Same way but with tables
-
-                        Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
-                        Table table = mapTable(currentTable, column);
-                        schema.addTable(table);
 
 
-                    } else {
+                } else {
 
-                        Table table = schema.getTables().get(schema.getTables().size() - 1);
-                        Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
-                        table.addColumn(column);
-                    }
-                }
-
-                previousSchema = currentSchema; //Map the currentSchema to the Previous one
-                previousTable = currentTable; //Same but with table
-            }
-            return databaseStructure;
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (Objects.nonNull(resultSet)) {
-                resultSet.close();
-            }
-            if (Objects.nonNull(statement)) {
-                statement.close();
-            }
-        }
-    }
-
-    @Override
-    public DatabaseStructure getSchemasStructure(String instanceName) throws SQLException {
-        Connection connection = null;
-
-        Statement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            InstanceInfo instanceInfo = instanceInfoRepository.findByInstanceName(instanceName);
-
-            DataSource dataSource = getDataSource(instanceInfo);
-
-            connection = dataSource.getConnection();
-
-            /*
-            -- https://en.wikipedia.org/wiki/Information_schema
-            -- https://dev.mysql.com/doc/refman/5.5/en/performance-schema.html
-            -- Performance, information schema and sys are not scanned because the client doesn't need that data
-             */
-            String query = getQuery(commonConfiguration.getStructureFileMySql());
-
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
-
-            DatabaseStructure databaseStructure = new DatabaseStructure();
-
-            String previousSchema = "";
-            String previousTable = "";
-
-            while (resultSet.next()) {
-
-                String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
-                String currentTable = resultSet.getString("TABLENAME");
-                String currentColumnName = resultSet.getString("COLUMNNAME");
-                String currentColumnType = resultSet.getString("COLUMNTYPE");
-                String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
-
-                if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
-
-                    Schema schema = new Schema();
-                    schema.setSchemaName(currentSchema);
-                    databaseStructure.addSchema(schema);
-
-                } else { //While this one is going to be reached if i'm on the Last Schema
-                    Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
-                }
-
-                previousSchema = currentSchema; //Map the currentSchema to the Previous one
-            }
-            return databaseStructure;
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (Objects.nonNull(resultSet)) {
-                resultSet.close();
-            }
-            if (Objects.nonNull(statement)) {
-                statement.close();
-            }
-        }
-    }
-
-    @Override
-    public DatabaseStructure getTablesStructure(String instanceName) throws SQLException {
-        Connection connection = null;
-
-        Statement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            InstanceInfo instanceInfo = instanceInfoRepository.findByInstanceName(instanceName);
-
-            DataSource dataSource = getDataSource(instanceInfo);
-
-            connection = dataSource.getConnection();
-
-            /*
-            -- https://en.wikipedia.org/wiki/Information_schema
-            -- https://dev.mysql.com/doc/refman/5.5/en/performance-schema.html
-            -- Performance, information schema and sys are not scanned because the client doesn't need that data
-             */
-            String query = getQuery(commonConfiguration.getStructureFileMySql());
-
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
-
-            DatabaseStructure databaseStructure = new DatabaseStructure();
-
-            String previousSchema = "";
-            String previousTable = "";
-
-            while (resultSet.next()) {
-
-                String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
-                String currentTable = resultSet.getString("TABLENAME");
-                String currentColumnName = resultSet.getString("COLUMNNAME");
-                String currentColumnType = resultSet.getString("COLUMNTYPE");
-                String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
-
-                if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
-
-                    Schema schema = new Schema();
-                    schema.setSchemaName(currentSchema);
-
+                    Table table = schema.getTables().get(schema.getTables().size() - 1);
                     Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
-
-                    Table table = mapTable(currentTable, column);
-
-                    schema.addTable(table);
-                    databaseStructure.addSchema(schema);
-
-                } else { //While this one is going to be reached if i'm on the Last Schema
-                    Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
-                    if (!previousTable.equals(currentTable)) { //Same way but with tables
-
-                        Table table = new Table();
-                        table.setTableName(currentTable);
-                        schema.addTable(table);
-                    }
+                    table.addColumn(column);
                 }
+            }
 
-                previousSchema = currentSchema; //Map the currentSchema to the Previous one
-                previousTable = currentTable; //Same but with table
-            }
-            return databaseStructure;
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (Objects.nonNull(resultSet)) {
-                resultSet.close();
-            }
-            if (Objects.nonNull(statement)) {
-                statement.close();
-            }
+            previousSchema = currentSchema; //Map the currentSchema to the Previous one
+            previousTable = currentTable; //Same but with table
         }
+        return databaseStructure;
     }
+
+    private DatabaseStructure getTableStructure(ResultSet resultSet, String previousSchema, String previousTable, DatabaseStructure databaseStructure) throws SQLException {
+        while (resultSet.next()) {
+
+            String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
+            String currentTable = resultSet.getString("TABLENAME");
+            String currentColumnName = resultSet.getString("COLUMNNAME");
+            String currentColumnType = resultSet.getString("COLUMNTYPE");
+            String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
+
+            if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
+
+                Schema schema = new Schema();
+                schema.setSchemaName(currentSchema);
+
+                Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
+
+                Table table = mapTable(currentTable, column);
+
+                schema.addTable(table);
+                databaseStructure.addSchema(schema);
+
+            } else { //While this one is going to be reached if i'm on the Last Schema
+                Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
+                if (!previousTable.equals(currentTable)) { //Same way but with tables
+
+                    Table table = new Table();
+                    table.setTableName(currentTable);
+                    schema.addTable(table);
+                }
+            }
+
+            previousSchema = currentSchema; //Map the currentSchema to the Previous one
+            previousTable = currentTable; //Same but with table
+        }
+        return databaseStructure;
+    }
+
 
     private String getStructureFileName() {
         return commonConfiguration.getStructureFileMySql();
@@ -292,54 +232,5 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
         table.setTableName(currentTable);
         table.addColumn(column);
         return table;
-    }
-
-    private void configureResultSet(String instanceName) throws SQLException {
-        Connection connection = null;
-
-        Statement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            InstanceInfo instanceInfo = instanceInfoRepository.findByInstanceName(instanceName);
-
-            DataSource dataSource = getDataSource(instanceInfo);
-
-            connection = dataSource.getConnection();
-
-            /*
-            -- https://en.wikipedia.org/wiki/Information_schema
-            -- https://dev.mysql.com/doc/refman/5.5/en/performance-schema.html
-            -- Performance, information schema and sys are not scanned because the client doesn't need that data
-             */
-            String query = getQuery(commonConfiguration.getStructureFileMySql());
-
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
-
-            DatabaseStructure databaseStructure = new DatabaseStructure();
-
-            String previousSchema = "";
-            String previousTable = "";
-
-            while (resultSet.next()) {
-
-                String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
-                String currentTable = resultSet.getString("TABLENAME");
-                String currentColumnName = resultSet.getString("COLUMNNAME");
-                String currentColumnType = resultSet.getString("COLUMNTYPE");
-                String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
-            }
-
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (Objects.nonNull(resultSet)) {
-                resultSet.close();
-            }
-            if (Objects.nonNull(statement)) {
-                statement.close();
-            }
-        }
     }
 }

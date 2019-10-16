@@ -14,11 +14,22 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
+
 
 @Service
 public class ScannerServiceImpl implements ScannerService {
+
+    private static final String SCHEMAS = "Schemas";
+    private static final String TABLES = "Tables";
+    private static final String COLUMNS = "Columns";
+
+    private static final String SCHEMA = "Schema";
+    private static final String TABLE = "Table";
+
+    private static final String COLUMN_NAME = "Column name";
+    private static final String COLUMN_TYPE = "Column type";
+    private static final String PRIMARY_KEY = "Primary key";
+
 
     @Override
     public String scanSchemas(DatabaseStructure databaseStructure) throws Exception {
@@ -28,7 +39,7 @@ public class ScannerServiceImpl implements ScannerService {
         generator.setPrettyPrinter(new DefaultPrettyPrinter());
 
         generator.writeStartObject();
-        generator.writeArrayFieldStart("Schemas");
+        generator.writeArrayFieldStart(SCHEMAS);
         for(Schema schema : databaseStructure.getSchemas()){
             generator.writeString(schema.getSchemaName());
         }
@@ -47,11 +58,11 @@ public class ScannerServiceImpl implements ScannerService {
         generator.setPrettyPrinter(new DefaultPrettyPrinter());
 
         generator.writeStartObject();
-        generator.writeArrayFieldStart("Schemas");
+        generator.writeArrayFieldStart(SCHEMAS);
         for(Schema schema : databaseStructure.getSchemas()){
             generator.writeStartObject();
-            generator.writeStringField("Schema", schema.getSchemaName());
-            generator.writeArrayFieldStart("Tables");
+            generator.writeStringField(SCHEMA, schema.getSchemaName());
+            generator.writeArrayFieldStart(TABLES);
             for (Table table : schema.getTables()){
                 generator.writeString(table.getTableName());
             }
@@ -74,20 +85,20 @@ public class ScannerServiceImpl implements ScannerService {
         generator.setPrettyPrinter(new DefaultPrettyPrinter());
 
         generator.writeStartObject();
-        generator.writeArrayFieldStart("Schemas");
+        generator.writeArrayFieldStart(SCHEMAS);
         for(Schema schema : databaseStructure.getSchemas()){
             generator.writeStartObject();
-            generator.writeStringField("Schema", schema.getSchemaName());
-            generator.writeArrayFieldStart("Tables");
+            generator.writeStringField(SCHEMA, schema.getSchemaName());
+            generator.writeArrayFieldStart(TABLES);
             for (Table table : schema.getTables()){
                 generator.writeStartObject();
-                generator.writeStringField("Table", table.getTableName());
-                generator.writeArrayFieldStart("Columns");
+                generator.writeStringField(TABLE, table.getTableName());
+                generator.writeArrayFieldStart(COLUMNS);
                 for (Column column : table.getColumns()){
                     generator.writeStartObject();
-                    generator.writeStringField("Column name", column.getColumnName());
-                    generator.writeStringField("Column type", column.getColumnType());
-                    generator.writeStringField("Primary Key", column.getPrimaryKey().toString());
+                    generator.writeStringField(COLUMN_NAME, column.getColumnName());
+                    generator.writeStringField(COLUMN_TYPE, column.getColumnType());
+                    generator.writeStringField(PRIMARY_KEY, column.getPrimaryKey().toString());
                     generator.writeEndObject();
                 }
                 generator.writeEndArray();

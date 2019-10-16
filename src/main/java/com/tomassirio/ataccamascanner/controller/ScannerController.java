@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/scanner")
 public class ScannerController {
 
+    private static final String SCHEMA = "Schema";
+    private static final String TABLE = "Table";
+    private static final String COLUMN = "Column";
+
+
     @Autowired
     private InstanceInfoService instanceInfoService;
 
@@ -26,7 +31,7 @@ public class ScannerController {
     @PostMapping("/{instanceName}/schemas")
     public ResponseEntity<String> scanSchemas(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getSchemasStructure(instanceName);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, SCHEMA);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanSchemas(databaseStructure));
 
@@ -35,7 +40,7 @@ public class ScannerController {
     @PostMapping("/{instanceName}/tables")
     public ResponseEntity<String> scanTables(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getTablesStructure(instanceName);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, TABLE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanTables(databaseStructure));
 
@@ -43,27 +48,9 @@ public class ScannerController {
 
     @PostMapping("/{instanceName}/columns")
     public ResponseEntity<String> scanColumns(@PathVariable("instanceName") String instanceName) throws Exception {
-        DatabaseStructure databaseStructure = databaseStructureService.getColumnsStructure(instanceName);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanColumns(databaseStructure));
 
     }
-//
-//    @PostMapping("/columns/{tableName}")
-//    public ResponseEntity<String> scan(@PathVariable("tableName") String instanceName) throws Exception {
-//
-//        InstanceInfo instanceInfo = instanceInfoService.findById(instanceInfoDTO);
-//        scannerService.execute(instanceInfo);
-//        return ResponseEntity.status(HttpStatus.OK).body(instanceInfo);
-//
-//    }
-//
-//    @PostMapping("/data/{columnName}")
-//    public ResponseEntity<String> scan(@PathVariable("columnName") String instanceName) throws Exception {
-//
-//        InstanceInfo instanceInfo = instanceInfoService.findById(instanceInfoDTO);
-//        scannerService.execute(instanceInfo);
-//        return ResponseEntity.status(HttpStatus.OK).body(instanceInfo);
-//
-//    }
 }

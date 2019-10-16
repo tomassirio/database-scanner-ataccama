@@ -12,9 +12,6 @@ public interface DatabaseStructureService {
 
     DataSource getDataSource(InstanceInfo instanceInfo);
 
-    DatabaseStructure getColumnsStructure(String instanceName) throws SQLException;
+    DatabaseStructure getDatabaseStructure(String instanceName, String structure) throws SQLException;
 
-    DatabaseStructure getSchemasStructure(String instanceName) throws SQLException;
-
-    DatabaseStructure getTablesStructure(String instanceName) throws  SQLException;
 }
