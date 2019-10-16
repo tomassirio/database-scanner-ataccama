@@ -10,8 +10,8 @@ import java.sql.SQLException;
 
 public interface DatabaseStructureService {
 
-    DataSource getDataSource(InstanceInfo instanceInfo);
+    DataSource getDataSource(InstanceInfo instanceInfo, Boolean allDatabases);
 
-    DatabaseStructure getDatabaseStructure(String instanceName, String structure) throws SQLException;
+    DatabaseStructure getDatabaseStructure(String instanceName, String structure, Boolean allDatabases) throws SQLException;
 
 }

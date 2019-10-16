@@ -31,15 +31,21 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private CommonConfiguration commonConfiguration;
 
     @Override
-    public DataSource getDataSource(InstanceInfo instanceInfo) {
-        return DataSourceBuilder.create()
-                .url(MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort())
-                .username(instanceInfo.getUser())
-                .password(instanceInfo.getPassword()).build();
+    public DataSource getDataSource(InstanceInfo instanceInfo, Boolean allDatabases) {
+        if(allDatabases)
+            return DataSourceBuilder.create()
+                    .url(MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort())
+                    .username(instanceInfo.getUser())
+                    .password(instanceInfo.getPassword()).build();
+        else
+            return DataSourceBuilder.create()
+                    .url(MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort() + "/" + instanceInfo.getDatabase())
+                    .username(instanceInfo.getUser())
+                    .password(instanceInfo.getPassword()).build();
     }
 
     @Override
-    public DatabaseStructure getDatabaseStructure(String instanceName, String structure) throws SQLException {
+    public DatabaseStructure getDatabaseStructure(String instanceName, String structure, Boolean allDatabases) throws SQLException {
         Connection connection = null;
 
         Statement statement = null;
@@ -48,7 +54,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
         try {
             InstanceInfo instanceInfo = instanceInfoRepository.findByInstanceName(instanceName);
 
-            DataSource dataSource = getDataSource(instanceInfo);
+            DataSource dataSource = getDataSource(instanceInfo, allDatabases);
 
             connection = dataSource.getConnection();
 
@@ -57,7 +63,10 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             -- https://dev.mysql.com/doc/refman/5.5/en/performance-schema.html
             -- Performance, information schema and sys are not scanned because the client doesn't need that data
              */
-            String query = getQuery(commonConfiguration.getStructureFileMySql());
+            String query = getQuery(allDatabases ? commonConfiguration.getStructureFileMySql() : commonConfiguration.getStructureFileMySqlByDatabase());
+
+            if(!allDatabases) //I might want to get the info on a given database or an all databases. So i change the query on that decission
+                query = query.replace("REFEREDSCHEMA", "\'" + instanceInfo.getDatabase() + "\'" );
 
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);

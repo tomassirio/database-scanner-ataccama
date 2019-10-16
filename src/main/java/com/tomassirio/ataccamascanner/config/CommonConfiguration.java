@@ -11,4 +11,6 @@ import org.springframework.context.annotation.Configuration;
 public class CommonConfiguration {
     @Value("${scanner.structure.filename.mysql}")
     private String structureFileMySql;
+    @Value("${scanner.structure.filename.mysqlbydatabase}")
+    private String structureFileMySqlByDatabase;
 }

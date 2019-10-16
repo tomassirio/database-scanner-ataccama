@@ -27,7 +27,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/schemas")
     public ResponseEntity<String> scanSchemas(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, SCHEMA);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, SCHEMA, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanSchemas(databaseStructure));
 
@@ -36,7 +36,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/tables")
     public ResponseEntity<String> scanTables(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, TABLE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, TABLE, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanTables(databaseStructure));
 
@@ -44,7 +44,24 @@ public class ScannerController {
 
     @GetMapping("/{instanceName}/columns")
     public ResponseEntity<String> scanColumns(@PathVariable("instanceName") String instanceName) throws Exception {
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN, Boolean.TRUE);
+
+        return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanColumns(databaseStructure));
+
+    }
+
+    @GetMapping("/{instanceName}/database/tables")
+    public ResponseEntity<String> scanTablesFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
+
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, TABLE, Boolean.FALSE);
+
+        return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanTables(databaseStructure));
+
+    }
+
+    @GetMapping("/{instanceName}/database/columns")
+    public ResponseEntity<String> scanColumnsFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanColumns(databaseStructure));
 
