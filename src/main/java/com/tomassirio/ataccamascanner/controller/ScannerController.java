@@ -18,10 +18,6 @@ public class ScannerController {
     private static final String TABLE = "Table";
     private static final String COLUMN = "Column";
 
-
-    @Autowired
-    private InstanceInfoService instanceInfoService;
-
     @Autowired
     private DatabaseStructureService databaseStructureService;
 
