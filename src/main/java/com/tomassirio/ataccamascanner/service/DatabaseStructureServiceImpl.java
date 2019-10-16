@@ -44,14 +44,14 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     }
 
     @Override
-    public DatabaseStructure getDatabaseStructure(String instanceName, String structure, Boolean allDatabases) throws SQLException, InstanceNotFoundException {
+    public DatabaseStructure getDatabaseStructure(Long id, String structure, Boolean allDatabases) throws SQLException, InstanceNotFoundException {
         Connection connection = null;
 
         Statement statement = null;
         ResultSet resultSet = null;
 
         try {
-            InstanceInfo instanceInfo = instanceInfoRepository.findByInstanceName(instanceName);
+            InstanceInfo instanceInfo = instanceInfoRepository.findInstanceInfoById(id);
 
             DataSource dataSource = getDataSource(instanceInfo, allDatabases);
 

@@ -1,5 +1,7 @@
 package com.tomassirio.ataccamascanner.service;
 
+import com.tomassirio.ataccamascanner.exceptions.InstanceInfoValidationException;
+import com.tomassirio.ataccamascanner.exceptions.InstanceNotFoundException;
 import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
 
@@ -9,12 +11,12 @@ public interface InstanceInfoService {
 
     List<InstanceInfo> findAllInstances();
 
-    InstanceInfo findById(Long id) throws Exception;
+    InstanceInfo findById(Long id) throws InstanceNotFoundException;
 
-    InstanceInfo createInstance(InstanceInfoDTO instanceInfoDTO) throws Exception;
+    InstanceInfo createInstance(InstanceInfoDTO instanceInfoDTO) throws InstanceInfoValidationException, InstanceNotFoundException;
 
-    InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception;
+    InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO) throws InstanceInfoValidationException, InstanceNotFoundException;
 
-    void deleteInstance(Long id) throws Exception;
+    void deleteInstance(Long id) throws InstanceNotFoundException;
 
 }
