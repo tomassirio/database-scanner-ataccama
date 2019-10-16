@@ -11,3 +11,21 @@
 - Git/Github
 
 The Spring Environment was created with `https://start.spring.io/`
+
+<H3>To Do:</H3>
+ 
+ - Develop a field query
+ 
+ - Develop the Bonus 
+ 
+ - Insert a logger on the different services to retrieve info while scanning
+ 
+ - Make Tests
+ 
+ - Dockerize the app 
+ 
+ - Dcoument everything on this Readme 
+ 
+ - Check that everything is working as intended
+ 
+ - Send it
