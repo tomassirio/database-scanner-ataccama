@@ -28,7 +28,7 @@ public class ScannerController {
     @Autowired
     private ScannerService scannerService;
 
-    @PostMapping("/{instanceName}/schemas")
+    @GetMapping("/{instanceName}/schemas")
     public ResponseEntity<String> scanSchemas(@PathVariable("instanceName") String instanceName) throws Exception {
 
         DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, SCHEMA);
@@ -37,7 +37,7 @@ public class ScannerController {
 
     }
 
-    @PostMapping("/{instanceName}/tables")
+    @GetMapping("/{instanceName}/tables")
     public ResponseEntity<String> scanTables(@PathVariable("instanceName") String instanceName) throws Exception {
 
         DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, TABLE);
@@ -46,7 +46,7 @@ public class ScannerController {
 
     }
 
-    @PostMapping("/{instanceName}/columns")
+    @GetMapping("/{instanceName}/columns")
     public ResponseEntity<String> scanColumns(@PathVariable("instanceName") String instanceName) throws Exception {
         DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN);
 
