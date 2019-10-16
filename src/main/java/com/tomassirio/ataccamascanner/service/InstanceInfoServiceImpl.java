@@ -38,15 +38,15 @@ public class InstanceInfoServiceImpl implements InstanceInfoService {
     }
 
     @Override
-    public InstanceInfoDTO updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception{
-        Optional<InstanceInfo> instanceInfo = instanceInfoRepository.findById(instanceInfoDTO.getId());
-
-        if (!instanceInfo.isPresent()) {
-            throw new Exception(instanceInfoDTO.getInstanceName());
+    public InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception{
+        try{
+            InstanceInfo instanceInfo = instanceInfoRepository.findInstanceInfoById(instanceInfoDTO.getId());
+            mapInstance(instanceInfo, instanceInfoDTO);
+            return instanceInfo;
+        }catch (Exception e){
+            throw e;
         }
 
-        mapInstance(instanceInfo.get(), instanceInfoDTO);
-        return instanceInfoDTO;
     }
 
     @Override

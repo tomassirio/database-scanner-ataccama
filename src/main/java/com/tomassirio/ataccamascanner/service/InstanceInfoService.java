@@ -13,7 +13,7 @@ public interface InstanceInfoService {
 
     InstanceInfo createInstance(InstanceInfoDTO instanceInfoDTO) throws Exception;
 
-    InstanceInfoDTO updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception;
+    InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception;
 
     void deleteInstance(Long id) throws Exception;
 
