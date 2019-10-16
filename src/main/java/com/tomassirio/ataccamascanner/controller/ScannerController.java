@@ -1,6 +1,7 @@
 package com.tomassirio.ataccamascanner.controller;
 
-import com.tomassirio.ataccamascanner.model.InstanceInfo;
+import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
+import com.tomassirio.ataccamascanner.service.DatabaseStructureService;
 import com.tomassirio.ataccamascanner.service.InstanceInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,11 +16,15 @@ public class ScannerController {
     @Autowired
     private InstanceInfoService instanceInfoService;
 
+    @Autowired
+    private DatabaseStructureService databaseStructureService;
+
     @PostMapping("/schemas/{instanceName}")
     public ResponseEntity<String> scan(@PathVariable("instanceName") String instanceName) throws Exception {
 
 //        InstanceInfo instanceInfo = instanceInfoService.findById(instanceInfoDTO);
 //        scannerService.execute(instanceInfo);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName);
         return ResponseEntity.status(HttpStatus.OK).body("");
 
     }

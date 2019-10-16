@@ -7,9 +7,9 @@ import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-public interface DataSourceService {
+public interface DatabaseStructureService {
 
     DataSource getDataSource(InstanceInfo instanceInfo);
 
-    DatabaseStructure getDatabaseStructure(InstanceInfoDTO instanceInfoDTO) throws SQLException;
+    DatabaseStructure getDatabaseStructure(String instanceName) throws SQLException;
 }
