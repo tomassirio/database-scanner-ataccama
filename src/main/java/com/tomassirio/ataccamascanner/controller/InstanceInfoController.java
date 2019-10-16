@@ -40,11 +40,11 @@ public class InstanceInfoController {
 
     }
 
-    @PutMapping("/instance_info/{id}")
-    public ResponseEntity<InstanceInfoDTO> updateInstance(@Valid @RequestBody InstanceInfoDTO instanceInfoDTO) throws Exception {
+    @PutMapping("/instance_info/")
+    public ResponseEntity<InstanceInfo> updateInstance(@Valid @RequestBody InstanceInfoDTO instanceInfoDTO) throws Exception {
 
-        instanceInfoService.updateInstance(instanceInfoDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(instanceInfoDTO);
+        InstanceInfo instanceInfo = instanceInfoService.updateInstance(instanceInfoDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(instanceInfo);
     }
 
     @DeleteMapping("/instance_info/{id}")
