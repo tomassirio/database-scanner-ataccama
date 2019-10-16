@@ -1,5 +1,7 @@
 package com.tomassirio.ataccamascanner.service;
 
+import com.tomassirio.ataccamascanner.exceptions.InstanceInfoValidationException;
+import com.tomassirio.ataccamascanner.exceptions.InstanceNotFoundException;
 import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
 import com.tomassirio.ataccamascanner.repository.InstanceInfoRepository;
@@ -23,13 +25,13 @@ public class InstanceInfoServiceImpl implements InstanceInfoService {
     }
 
     @Override
-    public InstanceInfo findById(Long id) throws Exception{
+    public InstanceInfo findById(Long id) throws InstanceNotFoundException {
         InstanceInfo instanceInfo = instanceInfoRepository.findInstanceInfoById(id);
         return instanceInfo;
     }
 
     @Override
-    public InstanceInfo createInstance(InstanceInfoDTO instanceInfoDTO) throws Exception{
+    public InstanceInfo createInstance(InstanceInfoDTO instanceInfoDTO) throws InstanceNotFoundException {
         isValidInstance(instanceInfoDTO);
         InstanceInfo instanceInfo = new InstanceInfo();
         mapInstance(instanceInfo, instanceInfoDTO);
@@ -38,36 +40,36 @@ public class InstanceInfoServiceImpl implements InstanceInfoService {
     }
 
     @Override
-    public InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO) throws Exception{
+    public InstanceInfo updateInstance(InstanceInfoDTO instanceInfoDTO) throws InstanceNotFoundException{
         try{
             InstanceInfo instanceInfo = instanceInfoRepository.findInstanceInfoById(instanceInfoDTO.getId());
             mapInstance(instanceInfo, instanceInfoDTO);
             return instanceInfo;
         }catch (Exception e){
-            throw e;
+            throw new InstanceNotFoundException(instanceInfoDTO.getId().toString());
         }
 
     }
 
     @Override
-    public void deleteInstance(Long id) throws Exception{
+    public void deleteInstance(Long id) throws InstanceNotFoundException{
         try {
             InstanceInfo instanceInfo = instanceInfoRepository.findInstanceInfoById(id);
 
             instanceInfoRepository.delete(instanceInfo);
 
         } catch (Exception e) {
-            throw new Exception(id.toString());
+            throw new InstanceNotFoundException(id.toString());
         }
     }
 
-    private boolean isValidInstance(InstanceInfoDTO instanceInfoDTO) throws Exception {
+    private boolean isValidInstance(InstanceInfoDTO instanceInfoDTO) throws InstanceNotFoundException {
         InstanceInfo instanceInfo = instanceInfoRepository.findByInstanceName(instanceInfoDTO.getInstanceName());
 
         if (Objects.isNull(instanceInfo)) {
             return true;
         } else {
-            throw new Exception(instanceInfoDTO.getInstanceName());
+            throw new InstanceNotFoundException(instanceInfoDTO.getInstanceName());
         }
     }
 

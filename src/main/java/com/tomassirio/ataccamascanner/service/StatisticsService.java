@@ -2,8 +2,10 @@ package com.tomassirio.ataccamascanner.service;
 
 import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
 
-public interface StatisticsService {
-    String statisticsColumn(DatabaseStructure databaseStructure) throws Exception;
+import java.io.IOException;
 
-    String statisticsTable(DatabaseStructure databaseStructure) throws Exception;
+public interface StatisticsService {
+    String statisticsColumn(DatabaseStructure databaseStructure) throws IOException;
+
+    String statisticsTable(DatabaseStructure databaseStructure) throws IOException;
 }

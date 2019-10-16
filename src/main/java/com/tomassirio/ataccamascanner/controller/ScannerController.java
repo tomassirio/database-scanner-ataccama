@@ -1,5 +1,6 @@
 package com.tomassirio.ataccamascanner.controller;
 
+import com.tomassirio.ataccamascanner.config.CommonConfiguration;
 import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
 import com.tomassirio.ataccamascanner.service.DatabaseStructureService;
 import com.tomassirio.ataccamascanner.service.InstanceInfoService;
@@ -14,10 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/scanner")
 public class ScannerController {
 
-    private static final String SCHEMA = "Schema";
-    private static final String TABLE = "Table";
-    private static final String COLUMN = "Column";
-    private static final String ROWS = "Row";
 
     @Autowired
     private DatabaseStructureService databaseStructureService;
@@ -28,7 +25,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/schemas")
     public ResponseEntity<String> scanSchemas(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, SCHEMA, Boolean.TRUE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.SCHEMA, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanSchemas(databaseStructure));
 
@@ -37,7 +34,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/tables")
     public ResponseEntity<String> scanTables(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, TABLE, Boolean.TRUE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.TABLE, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanTables(databaseStructure));
 
@@ -45,7 +42,7 @@ public class ScannerController {
 
     @GetMapping("/{instanceName}/columns")
     public ResponseEntity<String> scanColumns(@PathVariable("instanceName") String instanceName) throws Exception {
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN, Boolean.TRUE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.COLUMN, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanColumns(databaseStructure));
 
@@ -54,7 +51,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/rows")
     public ResponseEntity<String> scanFields(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, ROWS, Boolean.TRUE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.ROWS, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanFields(databaseStructure));
 
@@ -63,7 +60,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/database/tables")
     public ResponseEntity<String> scanTablesFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, TABLE, Boolean.FALSE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.TABLE, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanTables(databaseStructure));
 
@@ -71,7 +68,7 @@ public class ScannerController {
 
     @GetMapping("/{instanceName}/database/columns")
     public ResponseEntity<String> scanColumnsFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, COLUMN, Boolean.FALSE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.COLUMN, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanColumns(databaseStructure));
 
@@ -80,7 +77,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/database/rows")
     public ResponseEntity<String> scanFieldsFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, ROWS, Boolean.FALSE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.ROWS, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanFields(databaseStructure));
 
