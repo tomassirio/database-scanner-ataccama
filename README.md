@@ -14,7 +14,7 @@ The Spring Environment was created with `https://start.spring.io/`
 
 <H3>To Do:</H3>
  
- - Develop a field query
+ ~~- Develop a field query~~
  
  - Develop the Bonus 
  
