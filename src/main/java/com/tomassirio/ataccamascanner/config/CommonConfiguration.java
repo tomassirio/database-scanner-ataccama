@@ -48,9 +48,11 @@ public class CommonConfiguration {
     public static final String MYSQL_JDBC = "jdbc:mysql";
 
     public static final String REFERED_SCHEMA = "REFEREDSCHEMA";
-    public static final String DATABASE_SCHEMA = "DATABASESCHEMA";
-
-    public static final String KEY_COLUMN = "KEYCOLUMN";
+    public static final String DATABASESCHEMA = "DATABASESCHEMA";
+    public static final String TABLENAME = "TABLENAME";
+    public static final String COLUMNNAME = "COLUMNNAME";
+    public static final String COLUMNTYPE = "COLUMNTYPE";
+    public static final String KEYCOLUMN = "KEYCOLUMN";
 
 
 }

@@ -114,7 +114,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private DatabaseStructure getSChemaStructure(ResultSet resultSet, String previousSchema, DatabaseStructure databaseStructure) throws SQLException {
         while (resultSet.next()) {
 
-            String currentSchema = resultSet.getString(CommonConfiguration.DATABASE_SCHEMA); //This are the names assigned on mysql-query.sql
+            String currentSchema = resultSet.getString(CommonConfiguration.DATABASESCHEMA); //This are the names assigned on mysql-query.sql
 
             if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 
@@ -131,11 +131,11 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private DatabaseStructure getColumnStructure(ResultSet resultSet, String previousSchema, String previousTable, DatabaseStructure databaseStructure) throws SQLException {
         while (resultSet.next()) {
 
-            String currentSchema = resultSet.getString(CommonConfiguration.DATABASE_SCHEMA); //This are the names assigned on mysql-query.sql
-            String currentTable = resultSet.getString(CommonConfiguration.TABLE_NAME);
-            String currentColumnName = resultSet.getString(CommonConfiguration.COLUMN_NAME);
-            String currentColumnType = resultSet.getString(CommonConfiguration.COLUMN_TYPE);
-            String currentColumnKeyUsage = resultSet.getString(CommonConfiguration.KEY_COLUMN);
+            String currentSchema = resultSet.getString(CommonConfiguration.DATABASESCHEMA); //This are the names assigned on mysql-query.sql
+            String currentTable = resultSet.getString(CommonConfiguration.TABLENAME);
+            String currentColumnName = resultSet.getString(CommonConfiguration.COLUMNNAME);
+            String currentColumnType = resultSet.getString(CommonConfiguration.COLUMNTYPE);
+            String currentColumnKeyUsage = resultSet.getString(CommonConfiguration.KEYCOLUMN);
 
             if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 
@@ -178,11 +178,11 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private DatabaseStructure getTableStructure(ResultSet resultSet, String previousSchema, String previousTable, DatabaseStructure databaseStructure) throws SQLException {
         while (resultSet.next()) {
 
-            String currentSchema = resultSet.getString(CommonConfiguration.DATABASE_SCHEMA); //This are the names assigned on mysql-query.sql
-            String currentTable = resultSet.getString(CommonConfiguration.TABLE_NAME);
-            String currentColumnName = resultSet.getString(CommonConfiguration.COLUMN_NAME);
-            String currentColumnType = resultSet.getString(CommonConfiguration.COLUMN_TYPE);
-            String currentColumnKeyUsage = resultSet.getString(CommonConfiguration.KEY_COLUMN);
+            String currentSchema = resultSet.getString(CommonConfiguration.DATABASESCHEMA); //This are the names assigned on mysql-query.sql
+            String currentTable = resultSet.getString(CommonConfiguration.TABLENAME);
+            String currentColumnName = resultSet.getString(CommonConfiguration.COLUMNNAME);
+            String currentColumnType = resultSet.getString(CommonConfiguration.COLUMNTYPE);
+            String currentColumnKeyUsage = resultSet.getString(CommonConfiguration.KEYCOLUMN);
 
             if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 

@@ -52,7 +52,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/rows")
     public ResponseEntity<String> scanFields(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.ROWS, Boolean.TRUE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.ROW, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanFields(databaseStructure));
 
@@ -78,7 +78,7 @@ public class ScannerController {
     @GetMapping("/{instanceName}/database/rows")
     public ResponseEntity<String> scanFieldsFromDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.ROWS, Boolean.FALSE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.ROW, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(scannerService.scanFields(databaseStructure));
 

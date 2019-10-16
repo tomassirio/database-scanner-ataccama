@@ -3,6 +3,10 @@ package com.tomassirio.ataccamascanner.controller;
 import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
 import com.tomassirio.ataccamascanner.service.InstanceInfoService;
+import com.tomassirio.ataccamascanner.utils.ErrorDetails;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +22,15 @@ public class InstanceInfoController {
     @Autowired
     private InstanceInfoService instanceInfoService;
 
+    @ApiOperation(
+            value = "Retrieve all Instances on the app"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully"),
+            @ApiResponse(code = 400, message = "Bad request", response = ErrorDetails.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorDetails.class)
+
+    })
     @GetMapping("/instance_info")
     public ResponseEntity<List<InstanceInfo>> findAll() {
 
