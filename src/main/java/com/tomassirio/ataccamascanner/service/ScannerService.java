@@ -1,8 +1,13 @@
 package com.tomassirio.ataccamascanner.service;
 
 import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
+import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
 
 public interface ScannerService {
 
-    String scan(InstanceInfoDTO instanceInfoDTO) throws Exception;
+    String scanSchemas(DatabaseStructure databaseStructure) throws Exception;
+
+    String scanTables(DatabaseStructure databaseStructure) throws Exception;
+
+    String scanColumns(DatabaseStructure databaseStructure) throws Exception;
 }
