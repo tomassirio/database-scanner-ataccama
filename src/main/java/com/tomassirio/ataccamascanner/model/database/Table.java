@@ -11,7 +11,6 @@ import java.util.List;
 public class Table {
     private String tableName;
     private String query;
-    private long count;
     private List<Column> columns = new ArrayList<>();
 
     public void addColumn(Column column){

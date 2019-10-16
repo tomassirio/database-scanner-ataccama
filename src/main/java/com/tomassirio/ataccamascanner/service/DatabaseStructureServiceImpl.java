@@ -22,6 +22,8 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
     private static final String MYSQL_JDBC = "jdbc:mysql";
 
+    private static final String PRIMARY_KEY = "PRIMARY KEY";
+
     @Autowired
     private InstanceInfoRepository instanceInfoRepository;
 
@@ -53,7 +55,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             /*
             -- https://en.wikipedia.org/wiki/Information_schema
             -- https://dev.mysql.com/doc/refman/5.5/en/performance-schema.html
-            -- Performance and information schema are not scanned because the client doesn't need that data
+            -- Performance, information schema and sys are not scanned because the client doesn't need that data
              */
             String query = getQuery(commonConfiguration.getStructureFileMySql());
 
@@ -71,13 +73,14 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                 String currentTable = resultSet.getString("TABLENAME");
                 String currentColumnName = resultSet.getString("COLUMNNAME");
                 String currentColumnType = resultSet.getString("COLUMNTYPE");
+                String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
 
                 if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 
                     Schema schema = new Schema();
                     schema.setSchemaName(currentSchema);
 
-                    Column column = mapColumn(currentColumnName, currentColumnType);
+                    Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
 
                     Table table = mapTable(currentTable, column);
 
@@ -88,22 +91,21 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                     Schema schema = databaseStructure.getSchemas().get(databaseStructure.getSchemas().size() - 1);
                     if (!previousTable.equals(currentTable)) { //Same way but with tables
 
-                        Column column = mapColumn(currentColumnName, currentColumnType);
-
+                        Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
                         Table table = mapTable(currentTable, column);
-
                         schema.addTable(table);
 
-                    } else {
-                        Table table = schema.getTables().get(schema.getTables().size() - 1);
 
-                        Column column = mapColumn(currentColumnName, currentColumnType);
+                    } else {
+
+                        Table table = schema.getTables().get(schema.getTables().size() - 1);
+                        Column column = mapColumn(currentColumnName, currentColumnType, currentColumnKeyUsage);
                         table.addColumn(column);
                     }
                 }
 
-                previousSchema = currentSchema;
-                previousTable = currentTable;
+                previousSchema = currentSchema; //Map the currentSchema to the Previous one
+                previousTable = currentTable; //Same but with table
             }
             return databaseStructure;
         }catch(Exception e){
@@ -141,10 +143,11 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
         return result.toString();
     }
 
-    private Column mapColumn(String currentColumnName, String currentColumnType) {
+    private Column mapColumn(String currentColumnName, String currentColumnType, String currentColumnKeyUsage) {
         Column column = new Column();
         column.setColumnName(currentColumnName);
         column.setColumnType(currentColumnType);
+        column.setPrimaryKey(currentColumnKeyUsage.equals(PRIMARY_KEY) ? Boolean.TRUE : Boolean.FALSE);
         return column;
     }
 
