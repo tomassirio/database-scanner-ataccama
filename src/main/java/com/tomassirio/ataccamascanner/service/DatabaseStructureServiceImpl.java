@@ -2,6 +2,7 @@ package com.tomassirio.ataccamascanner.service;
 
 
 import com.tomassirio.ataccamascanner.config.CommonConfiguration;
+import com.tomassirio.ataccamascanner.exceptions.InstanceNotFoundException;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
 import com.tomassirio.ataccamascanner.model.database.*;
 import com.tomassirio.ataccamascanner.repository.InstanceInfoRepository;
@@ -17,23 +18,6 @@ import java.util.Objects;
 @Service
 public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
-    private static final String MYSQL_JDBC = "jdbc:mysql";
-    private static final String PRIMARY_KEY = "PRIMARY KEY";
-    private static final String MIN = "MIN";
-    private static final String MAX = "MAX";
-    private static final String AVG = "AVG";
-    //private static final String MEDIAN = "MEDIAN";
-
-    private static final String SCHEMA = "Schema";
-    private static final String TABLE = "Table";
-    private static final String COLUMN = "Column";
-    private static final String ROW = "Row";
-    private static final String STATISTICS_COLUMN = "Statistics Column";
-    private static final String STATISTICS_TABLE = "Statistics Table";
-
-    private static final String REFEREDSCHEMA = "REFEREDSCHEMA";
-
-
     @Autowired
     private InstanceInfoRepository instanceInfoRepository;
 
@@ -44,18 +28,18 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     public DataSource getDataSource(InstanceInfo instanceInfo, Boolean allDatabases) {
         if (allDatabases)
             return DataSourceBuilder.create()
-                    .url(MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort())
+                    .url(CommonConfiguration.MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort())
                     .username(instanceInfo.getUser())
                     .password(instanceInfo.getPassword()).build();
         else
             return DataSourceBuilder.create()
-                    .url(MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort() + "/" + instanceInfo.getDatabase())
+                    .url(CommonConfiguration.MYSQL_JDBC + "://" + instanceInfo.getHost() + ":" + instanceInfo.getPort() + "/" + instanceInfo.getDatabase())
                     .username(instanceInfo.getUser())
                     .password(instanceInfo.getPassword()).build();
     }
 
     @Override
-    public DatabaseStructure getDatabaseStructure(String instanceName, String structure, Boolean allDatabases) throws SQLException {
+    public DatabaseStructure getDatabaseStructure(String instanceName, String structure, Boolean allDatabases) throws SQLException, InstanceNotFoundException {
         Connection connection = null;
 
         Statement statement = null;
@@ -75,8 +59,8 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
              */
             String query = getQuery(allDatabases ? commonConfiguration.getStructureFileMySql() : commonConfiguration.getStructureFileMySqlByDatabase());
 
-            if (!allDatabases) //I might want to get the info on a given database or an all databases. So i change the query on that decission
-                query = query.replace(REFEREDSCHEMA, "\'" + instanceInfo.getDatabase() + "\'");
+            if (!allDatabases) //I might want to get the info on a given database or an all databases. So i change the query on that decision
+                query = query.replace(CommonConfiguration.REFERED_SCHEMA, "\'" + instanceInfo.getDatabase() + "\'");
 
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
@@ -87,22 +71,22 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
             String previousTable = "";
 
             switch (structure) {
-                case SCHEMA:
+                case CommonConfiguration.SCHEMA:
                     getSChemaStructure(resultSet, previousSchema, databaseStructure);
                     break;
-                case TABLE:
+                case CommonConfiguration.TABLE:
                     getTableStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     break;
-                case COLUMN:
+                case CommonConfiguration.COLUMN:
                     getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     break;
-                case STATISTICS_TABLE: //This is intended as they retrieve the same structure
-                case ROW: {
+                case CommonConfiguration.STATISTICS_TABLE: //This is intended as they retrieve the same structure
+                case CommonConfiguration.ROW: {
                     getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     getRowsStructure(databaseStructure, connection);
                 }
                 break;
-                case STATISTICS_COLUMN:
+                case CommonConfiguration.STATISTICS_COLUMN:
                     getColumnStructure(resultSet, previousSchema, previousTable, databaseStructure);
                     getStatisticsColumnStructure(databaseStructure, connection);
                     break;
@@ -125,7 +109,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private DatabaseStructure getSChemaStructure(ResultSet resultSet, String previousSchema, DatabaseStructure databaseStructure) throws SQLException {
         while (resultSet.next()) {
 
-            String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
+            String currentSchema = resultSet.getString(CommonConfiguration.DATABASE_SCHEMA); //This are the names assigned on mysql-query.sql
 
             if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 
@@ -142,11 +126,11 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private DatabaseStructure getColumnStructure(ResultSet resultSet, String previousSchema, String previousTable, DatabaseStructure databaseStructure) throws SQLException {
         while (resultSet.next()) {
 
-            String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
-            String currentTable = resultSet.getString("TABLENAME");
-            String currentColumnName = resultSet.getString("COLUMNNAME");
-            String currentColumnType = resultSet.getString("COLUMNTYPE");
-            String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
+            String currentSchema = resultSet.getString(CommonConfiguration.DATABASE_SCHEMA); //This are the names assigned on mysql-query.sql
+            String currentTable = resultSet.getString(CommonConfiguration.TABLE_NAME);
+            String currentColumnName = resultSet.getString(CommonConfiguration.COLUMN_NAME);
+            String currentColumnType = resultSet.getString(CommonConfiguration.COLUMN_TYPE);
+            String currentColumnKeyUsage = resultSet.getString(CommonConfiguration.KEY_COLUMN);
 
             if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 
@@ -189,11 +173,11 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private DatabaseStructure getTableStructure(ResultSet resultSet, String previousSchema, String previousTable, DatabaseStructure databaseStructure) throws SQLException {
         while (resultSet.next()) {
 
-            String currentSchema = resultSet.getString("DATABASESCHEMA"); //This are the names assigned on mysql-query.sql
-            String currentTable = resultSet.getString("TABLENAME");
-            String currentColumnName = resultSet.getString("COLUMNNAME");
-            String currentColumnType = resultSet.getString("COLUMNTYPE");
-            String currentColumnKeyUsage = resultSet.getString("KEYCOLUMN");
+            String currentSchema = resultSet.getString(CommonConfiguration.DATABASE_SCHEMA); //This are the names assigned on mysql-query.sql
+            String currentTable = resultSet.getString(CommonConfiguration.TABLE_NAME);
+            String currentColumnName = resultSet.getString(CommonConfiguration.COLUMN_NAME);
+            String currentColumnType = resultSet.getString(CommonConfiguration.COLUMN_TYPE);
+            String currentColumnKeyUsage = resultSet.getString(CommonConfiguration.KEY_COLUMN);
 
             if (!previousSchema.equals(currentSchema)) { //This branch will be reached if i reach a new Schema
 
@@ -257,9 +241,9 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
                     colStatement = connection.createStatement();
                     colResultSet = colStatement.executeQuery(column.getQuery());
                     while(colResultSet.next()){
-                        column.setMin(colResultSet.getString(MIN));
-                        column.setMax(colResultSet.getString(MAX));
-                        column.setAvg(colResultSet.getString(AVG));
+                        column.setMin(colResultSet.getString(CommonConfiguration.MIN));
+                        column.setMax(colResultSet.getString(CommonConfiguration.MAX));
+                        column.setAvg(colResultSet.getString(CommonConfiguration.AVG));
                     }
 
                 }
@@ -296,7 +280,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
         Column column = new Column();
         column.setColumnName(currentColumnName);
         column.setColumnType(currentColumnType);
-        column.setPrimaryKey(currentColumnKeyUsage.equals(PRIMARY_KEY) ? Boolean.TRUE : Boolean.FALSE);
+        column.setPrimaryKey(currentColumnKeyUsage.equals(CommonConfiguration.PRIMARY_KEY) ? Boolean.TRUE : Boolean.FALSE);
         return column;
     }
 
@@ -310,7 +294,6 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
     private void generateQueries(DatabaseStructure databaseStructure) {
         for (Schema schema : databaseStructure.getSchemas()) {
             for (Table table : schema.getTables()) {
-
                 StringBuilder sbQuery = (new StringBuilder()).append("select ");
                 for (Column column : table.getColumns()) {
                     sbQuery.append("`").append(column.getColumnName()).append("`, ");
@@ -327,6 +310,7 @@ public class DatabaseStructureServiceImpl implements DatabaseStructureService {
 
     private void generateColumnQuery(Column column, String schemaName, String tableName) {
         StringBuilder sbQuery = (
+                //SELECT MIN(columnName) as MIN, MAX(columnName) as MAX, AVG(columnName) as AVG FROM schemaName.tableName;
                 new StringBuilder()).append("SELECT ")
                 .append("MIN(")
                 .append(column.getColumnName())

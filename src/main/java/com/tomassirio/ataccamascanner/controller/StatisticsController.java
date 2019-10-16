@@ -1,6 +1,7 @@
 package com.tomassirio.ataccamascanner.controller;
 
 
+import com.tomassirio.ataccamascanner.config.CommonConfiguration;
 import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
 import com.tomassirio.ataccamascanner.service.DatabaseStructureService;
 import com.tomassirio.ataccamascanner.service.ScannerService;
@@ -17,9 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/statistics")
 public class StatisticsController {
 
-    private static final String STATISTICS_COLUMN = "Statistics Column";
-    private static final String STATISTICS_TABLE = "Statistics Table";
-
     @Autowired
     private DatabaseStructureService databaseStructureService;
 
@@ -29,7 +27,7 @@ public class StatisticsController {
     @GetMapping("/{instanceName}/column")
     public ResponseEntity<String> getStatisticsColumn(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, STATISTICS_COLUMN, Boolean.TRUE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.STATISTICS_COLUMN, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(statisticsService.statisticsColumn(databaseStructure));
 
@@ -38,7 +36,7 @@ public class StatisticsController {
     @GetMapping("/{instanceName}/table")
     public ResponseEntity<String> getStatisticsTable(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, STATISTICS_TABLE, Boolean.TRUE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.STATISTICS_TABLE, Boolean.TRUE);
 
         return ResponseEntity.status(HttpStatus.OK).body(statisticsService.statisticsTable(databaseStructure));
 
@@ -48,7 +46,7 @@ public class StatisticsController {
     @GetMapping("/{instanceName}/database/column")
     public ResponseEntity<String> getStatisticsColumnByDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, STATISTICS_COLUMN, Boolean.FALSE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.STATISTICS_COLUMN, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(statisticsService.statisticsColumn(databaseStructure));
 
@@ -57,7 +55,7 @@ public class StatisticsController {
     @GetMapping("/{instanceName}/database/table")
     public ResponseEntity<String> getStatisticsTableByDatabase(@PathVariable("instanceName") String instanceName) throws Exception {
 
-        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, STATISTICS_TABLE, Boolean.FALSE);
+        DatabaseStructure databaseStructure = databaseStructureService.getDatabaseStructure(instanceName, CommonConfiguration.STATISTICS_TABLE, Boolean.FALSE);
 
         return ResponseEntity.status(HttpStatus.OK).body(statisticsService.statisticsTable(databaseStructure));
 
