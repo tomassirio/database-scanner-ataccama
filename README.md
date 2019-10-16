@@ -18,6 +18,10 @@ The Spring Environment was created with `https://start.spring.io/`
  
  - Develop the Bonus 
  
+ - Create some custom exceptions
+ 
+ - Make the response entities to throw a 400 or 500 when the params are not ok
+ 
  - Insert a logger on the different services to retrieve info while scanning
  
  - Make Tests
