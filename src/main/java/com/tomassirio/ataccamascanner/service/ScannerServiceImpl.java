@@ -1,15 +1,10 @@
 package com.tomassirio.ataccamascanner.service;
 
-import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.tomassirio.ataccamascanner.config.CommonConfiguration;
-import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 import com.tomassirio.ataccamascanner.model.database.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;

@@ -1,6 +1,5 @@
 package com.tomassirio.ataccamascanner.service;
 
-import com.tomassirio.ataccamascanner.exceptions.InstanceInfoValidationException;
 import com.tomassirio.ataccamascanner.exceptions.InstanceNotFoundException;
 import com.tomassirio.ataccamascanner.model.DTO.InstanceInfoDTO;
 import com.tomassirio.ataccamascanner.model.InstanceInfo;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class InstanceInfoServiceImpl implements InstanceInfoService {

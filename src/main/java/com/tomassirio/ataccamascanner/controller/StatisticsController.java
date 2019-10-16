@@ -4,7 +4,6 @@ package com.tomassirio.ataccamascanner.controller;
 import com.tomassirio.ataccamascanner.config.CommonConfiguration;
 import com.tomassirio.ataccamascanner.model.database.DatabaseStructure;
 import com.tomassirio.ataccamascanner.service.DatabaseStructureService;
-import com.tomassirio.ataccamascanner.service.ScannerService;
 import com.tomassirio.ataccamascanner.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
