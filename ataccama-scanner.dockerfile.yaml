@@ -10,7 +10,7 @@ RUN mvn verify clean --fail-never
   # Image layer: with the application
 COPY . /app
 RUN mvn -v
-RUN mvn clean install -DskipTests
+RUN mvn clean install package
 EXPOSE 8080
 ADD ./target/ataccama-scanner-0.0.1-SNAPSHOT.jar /developments/
 ENTRYPOINT ["java","-jar","/developments/ataccama-scanner-0.0.1-SNAPSHOT.jar"]
