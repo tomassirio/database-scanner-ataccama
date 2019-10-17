@@ -98,6 +98,8 @@ The followings urls are the endpoints created for this exercise with it's HTTP m
 - Every endpoint has a similar service noted with /database/ which retrieves the data from the database 
 appointed on the Instance to be run. The regular endpoint doesn't care about the database parsed on the Instance
 and brings the info on every schema the connection can offer.
+The only exception to the endpoints analyzed through a database is the case in which analyses every schema. Since the response would
+only be the database in the instance info, which seems pointless
 
 - Last topic on the previous point, the databases 'sys', 'information_schema', 'mysql' and 'performance_schema'
 are not considered on the scan since they are automatically generated, thus, barely important :P
