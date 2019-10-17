@@ -18,6 +18,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
   mysqlataccama:
     image: mysql:8.0.14
+    volumes:
+      - ./src/main/resources:/docker-entrypoint-initdb.d
     networks:
       ataccama-network:
         aliases:
