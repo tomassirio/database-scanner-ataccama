@@ -8,9 +8,9 @@ COPY ./src/main/resources/create-instanceinfo.sql /docker-entrypoint-initdb.d/
 RUN mvn verify clean --fail-never
 
   # Image layer: with the application
-COPY . /app
-
-RUN mvn -U -X -e -fae -DskipTests=true package
+COPY . /appbut
+RUN mvn -v
+RUN mvn clean install -DskipTests
 EXPOSE 8080
 ADD ./target/ataccama-scanner-0.0.1-SNAPSHOT.jar /developments/
 ENTRYPOINT ["java","-jar","/developments/ataccama-scanner-0.0.1-SNAPSHOT.jar"]
