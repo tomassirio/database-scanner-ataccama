@@ -1,0 +1,34 @@
+version: '3.7'
+services:
+  ataccama-scanner:
+    build:
+      context: .
+      dockerfile: ataccama-scanner.dockerfile.yaml
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysqlataccama
+    networks:
+      ataccama-network:
+        aliases:
+          - ataccama-network-api
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqlataccama:3306/ataccama_scanner?allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+  mysqlataccama:
+    image: mysql:8.0.14
+    volumes:
+      - ./src/main/resources:/docker-entrypoint-initdb.d
+    networks:
+      ataccama-network:
+        aliases:
+          - ataccama-network-database
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=ataccama_scanner
+      - MYSQL_ONETIME_PASSWORD=true
+networks:
+  ataccama-network:
