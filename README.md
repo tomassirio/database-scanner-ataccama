@@ -14,6 +14,19 @@
 
 The Spring Environment was created with `https://start.spring.io/`
 
+<H3>How to run</H3>
+
+Download the project as a Zip or Clone it.
+
+ - Open a terminal
+ 
+ - Type `./mvnw package`
+
+ - Run `docker-compose run` and after that `docker-compose up`
+ 
+ _If you are running this project on a linux machine, don't forget to run the projects as root._
+ 
+ To open the app get on your favourite Browser and go to `http://localhost:8080/swagger-ui.html#/`
 <H3>To Do:</H3>
  
  ~~- Develop a field query~~
