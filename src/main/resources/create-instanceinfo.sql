@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS ataccama_scanner;
 USE ataccama_scanner;
-CREATE TABLE IF NOT EXISTS `ataccama_scanner.instance_info` (
+CREATE TABLE IF NOT EXISTS `instance_info` (
   `id` bigint(20) NOT NULL,
   `data_base` varchar(255) DEFAULT NULL,
   `host` varchar(255) DEFAULT NULL,
