@@ -32,6 +32,9 @@ Download the project as a Zip or Clone it.
  
  Note 2: _The project needs the mysql service to be down, check that out if it doesn't build_
  
+ Note 3: _The first time the build.sh is run will take some time since maven has to build the Jar and docker has to 
+ download it's dependencies_
+ 
  To open the app get on your favourite Browser and go to `http://localhost:8080/swagger-ui.html#/`
  
 <H3>REST API</H3>
@@ -139,7 +142,7 @@ branch.
  
  ~~- Check that everything is working as intended~~
  
- - Send it
+ ~~- Send it~~
 
 <H3>Who am I?</H3>
 
